@@ -44,6 +44,33 @@
             background-color: #ECFDF5;
         }
 
+        .back-btn {
+            border: 1px solid #E5E5E5;
+            border-radius: 999px;
+            background: white;
+            color: #14B8A6;
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            text-decoration: none;
+            transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+            flex-shrink: 0;
+        }
+
+        .back-btn:hover {
+            background-color: #ECFDF5;
+        }
+
+        .dark .back-btn {
+            background-color: #2D2D44;
+            color: #E5E5E5;
+            border-color: #3B3F5B;
+        }
+
         body.dark {
             background-color: #1A1A2E;
             color: #E5E5E;
@@ -433,6 +460,7 @@
         <!-- Header -->
         <div class="header">
             <div class="header-left">
+                <a href="dashboard.html" class="back-btn" title="Back to Dashboard">&#8592;</a>
                 <div class="tutor-info">
                     <div class="tutor-name">Sensei</div>
                     <div class="online-indicator">
