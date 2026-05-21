@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sensei-english-cache-v3';
+const CACHE_NAME = 'sensei-english-cache-v4';
 const urlsToCache = [
   '/',
   '/index.html',
