@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Dashboard</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/icon.svg">
+    <meta name="theme-color" content="#14B8A6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #F5F5F4;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 20px;
+        }
+
+        /* Header */
+        .welcome-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .theme-toggle-btn {
+            border: 1px solid #E5E5E5;
+            border-radius: 999px;
+            background: white;
+            color: #14B8A6;
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+        }
+
+        .theme-toggle-btn:hover {
+            background-color: #ECFDF5;
+        }
+
+        body.dark {
+            background-color: #1A1A2E;
+            color: #E5E5E5;
+        }
+
+        .dark .stat-card,
+        .dark .continue-section,
+        .dark .progress-section,
+        .dark .section-title,
+        .dark .button-grid .action-btn,
+        .dark .bottom-nav,
+        .dark .welcome-header {
+            background-color: #2D2D44 !important;
+            border-color: #3B3F5B !important;
+            color: #E5E5E5;
+        }
+
+        .dark .stat-label,
+        .dark .stat-unit,
+        .dark .topic-name,
+        .dark .topic-stats,
+        .dark .welcome-date,
+        .dark .nav-link {
+            color: #E5E5E5;
+        }
+
+        .dark .action-btn.btn-secondary {
+            background-color: #3B3F5B;
+            color: #E5E5E5;
+        }
+
+        .dark .progress-bar-container {
+            background-color: #3B3F5B;
+        }
+
+        .dark .progress-bar-fill {
+            background-color: #14B8A6;
+        }
+
+        .dark .theme-toggle-btn {
+            background-color: #2D2D44;
+            color: #E5E5E5;
+            border-color: #3B3F5B;
+        }
+
+        .dark .bottom-nav {
+            border-top-color: #3B3F5B;
+        }
+
+        .welcome-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1F2937;
+            margin-bottom: 4px;
+        }
+
+        .welcome-date {
+            font-size: 14px;
+            color: #6B7280;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            border: 1px solid #E5E5E5;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #6B7280;
+            font-weight: 500;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 42px;
+            font-weight: 700;
+            color: #14B8A6;
+        }
+
+        .stat-unit {
+            font-size: 14px;
+            color: #9CA3AF;
+            margin-left: 4px;
+        }
+
+        /* Continue Learning Section */
+        .continue-section {
+            background-color: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+            border: 1px solid #E5E5E5;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1F2937;
+            margin-bottom: 16px;
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .action-btn {
+            padding: 16px 20px;
+            border-radius: 8px;
+            border: none;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: #14B8A6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0D9488;
+        }
+
+        .btn-secondary {
+            background-color: #E0E7FF;
+            color: #4F46E5;
+        }
+
+        .btn-secondary:hover {
+            background-color: #C7D2FE;
+        }
+
+        /* Progress Section */
+        .progress-section {
+            background-color: white;
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid #E5E5E5;
+            margin-bottom: 40px;
+        }
+
+        .topic-progress {
+            margin-bottom: 20px;
+        }
+
+        .topic-progress:last-child {
+            margin-bottom: 0;
+        }
+
+        .topic-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .topic-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1F2937;
+        }
+
+        .topic-stats {
+            font-size: 13px;
+            color: #6B7280;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 20px;
+            background-color: #E5E5E5;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background-color: #14B8A6;
+            transition: width 0.4s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: white;
+            font-weight: 600;
+        }
+
+        .progress-bar-empty {
+            background-color: transparent;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+            border-top: 1px solid #E5E5E5;
+            padding: 8px 0;
+            gap: 0;
+            justify-content: center;
+        }
+
+        .nav-link {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 8px;
+            text-decoration: none;
+            color: #6B7280;
+            font-size: 12px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            transition: color 0.2s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #14B8A6;
+        }
+
+        .nav-icon {
+            font-size: 24px;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+                padding-bottom: 100px;
+            }
+
+            .welcome-title {
+                font-size: 24px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .stat-value {
+                font-size: 32px;
+            }
+
+            .bottom-nav {
+                display: flex;
+            }
+
+            .button-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 20px;
+            color: #9CA3AF;
+            font-size: 14px;
+        }
+
+        .emoji-icon {
+            display: inline-block;
+            font-size: 18px;
+            margin-right: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Welcome Header -->
+        <div class="welcome-header">
+            <div>
+                <div class="welcome-title">Welcome back! 👋</div>
+                <div class="welcome-date" id="currentDate"></div>
+            </div>
+            <button class="theme-toggle-btn" id="themeToggleBtn" type="button" title="Toggle dark mode">🌙</button>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Words Learned</div>
+                <div>
+                    <span class="stat-value" id="wordsLearned">0</span>
+                    <span class="stat-unit">words</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Conversations</div>
+                <div>
+                    <span class="stat-value" id="conversations">0</span>
+                    <span class="stat-unit">chats</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Day Streak</div>
+                <div>
+                    <span class="stat-value" id="dayStreak">0</span>
+                    <span class="stat-unit">days</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Continue Learning Section -->
+        <div class="continue-section">
+            <div class="section-title">Continue Learning</div>
+            <div class="button-grid">
+                <a href="vocab.html" class="action-btn btn-primary">
+                    <span>📚</span>
+                    <span>Practice Vocabulary</span>
+                </a>
+                <a href="index.html" class="action-btn btn-secondary">
+                    <span>💬</span>
+                    <span>Chat with Sensei</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Progress Section -->
+        <div class="progress-section">
+            <div class="section-title">Learning Progress</div>
+            <div id="topicProgressContainer"></div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <button class="nav-link active" style="text-decoration: none;">
+            <div class="nav-icon">📊</div>
+            <div>Dashboard</div>
+        </button>
+        <a href="vocab.html" class="nav-link">
+            <div class="nav-icon">📚</div>
+            <div>Vocab</div>
+        </a>
+        <a href="index.html" class="nav-link">
+            <div class="nav-icon">💬</div>
+            <div>Chat</div>
+        </a>
+        <a href="dashboard.html" class="nav-link" style="pointer-events: none; opacity: 0.5;">
+            <div class="nav-icon">📈</div>
+            <div>Progress</div>
+        </a>
+    </div>
+
+    <script>
+        const topics = ['greetings', 'food', 'travel', 'business'];
+
+        // Initialize
+        function initializeDashboard() {
+            initTheme();
+            displayCurrentDate();
+            updateStats();
+            displayTopicProgress();
+        }
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            setTheme(savedTheme);
+            const themeToggleBtn = document.getElementById('themeToggleBtn');
+            themeToggleBtn.addEventListener('click', toggleTheme);
+        }
+
+        function setTheme(theme) {
+            document.body.classList.toggle('dark', theme === 'dark');
+            const themeToggleBtn = document.getElementById('themeToggleBtn');
+            themeToggleBtn.textContent = theme === 'dark' ? '☀️' : '🌙';
+            localStorage.setItem('theme', theme);
+        }
+
+        function toggleTheme() {
+            const nextTheme = document.body.classList.contains('dark') ? 'light' : 'dark';
+            setTheme(nextTheme);
+        }
+
+        function displayCurrentDate() {
+            const today = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const dateString = today.toLocaleDateString('en-US', options);
+            document.getElementById('currentDate').textContent = dateString;
+        }
+
+        function updateStats() {
+            // Words Learned
+            const wordsLearned = countWordsLearned();
+            document.getElementById('wordsLearned').textContent = wordsLearned;
+
+            // Conversations
+            const conversations = countConversations();
+            document.getElementById('conversations').textContent = conversations;
+
+            // Day Streak
+            const dayStreak = calculateDayStreak();
+            document.getElementById('dayStreak').textContent = dayStreak;
+        }
+
+        function countWordsLearned() {
+            const progress = JSON.parse(localStorage.getItem('vocabProgress') || '{}');
+            let totalWords = 0;
+
+            Object.values(progress).forEach(topicProgress => {
+                Object.values(topicProgress).forEach(status => {
+                    if (status === true) totalWords++;
+                });
+            });
+
+            return totalWords;
+        }
+
+        function countConversations() {
+            // Count number of times the app was used by checking if vocabProgress was updated
+            // For now, we'll estimate based on stored data. A simple approach is to count
+            // the number of unique conversation sessions
+            const conversationData = localStorage.getItem('conversationCount');
+            if (conversationData) {
+                return parseInt(conversationData);
+            }
+            return 0;
+        }
+
+        function calculateDayStreak() {
+            const today = new Date().toDateString();
+            const lastActiveDate = localStorage.getItem('lastActiveDate');
+            const currentStreak = localStorage.getItem('currentStreak') || '0';
+
+            // If we're on the same day, return current streak
+            if (lastActiveDate === today) {
+                return parseInt(currentStreak);
+            }
+
+            // Check if this is a consecutive day
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayString = yesterday.toDateString();
+
+            let newStreak = 1;
+            if (lastActiveDate === yesterdayString) {
+                newStreak = parseInt(currentStreak) + 1;
+            }
+
+            // Update streak data
+            localStorage.setItem('lastActiveDate', today);
+            localStorage.setItem('currentStreak', newStreak.toString());
+
+            return newStreak;
+        }
+
+        function displayTopicProgress() {
+            const container = document.getElementById('topicProgressContainer');
+            const progress = JSON.parse(localStorage.getItem('vocabProgress') || '{}');
+
+            if (Object.keys(progress).length === 0) {
+                container.innerHTML = '<div class="empty-state"><span class="emoji-icon">📖</span>Start learning vocabulary to see your progress!</div>';
+                return;
+            }
+
+            topics.forEach(topic => {
+                const topicProgress = progress[topic] || {};
+                const known = Object.values(topicProgress).filter(status => status === true).length;
+                const total = 6; // Each topic has 6 words
+
+                const percentage = (known / total) * 100;
+                const displayPercentage = Math.round(percentage);
+
+                const topicDiv = document.createElement('div');
+                topicDiv.className = 'topic-progress';
+                topicDiv.innerHTML = `
+                    <div class="topic-header">
+                        <div class="topic-name">${capitalizeFirstLetter(topic)}</div>
+                        <div class="topic-stats">${known} of ${total}</div>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" style="width: ${percentage}%">
+                            ${displayPercentage > 10 ? displayPercentage + '%' : ''}
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(topicDiv);
+            });
+        }
+
+        function capitalizeFirstLetter(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        // Track activity for streak
+        function trackActivity() {
+            const today = new Date().toDateString();
+            const lastActiveDate = localStorage.getItem('lastActiveDate');
+
+            if (lastActiveDate !== today) {
+                // New day, calculate streak
+                calculateDayStreak();
+            }
+        }
+
+        // Update conversation count
+        function incrementConversationCount() {
+            const currentCount = parseInt(localStorage.getItem('conversationCount') || '0');
+            localStorage.setItem('conversationCount', (currentCount + 1).toString());
+        }
+
+        // Initialize on page load
+        initializeDashboard();
+        trackActivity();
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('Service worker registered.', reg))
+                    .catch(err => console.warn('Service worker failed:', err));
+            });
+        }
+
+        // Listen for changes from other tabs
+        window.addEventListener('storage', () => {
+            initializeDashboard();
+        });
+
+        // Periodically update to reflect activity
+        setInterval(() => {
+            updateStats();
+        }, 5000);
+    </script>
+</body>
+</html>

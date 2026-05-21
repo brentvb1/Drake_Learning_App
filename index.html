@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Learning Chat</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/icon.svg">
+    <meta name="theme-color" content="#14B8A6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #F5F5F4;
+            color: #1F2937;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .theme-toggle-btn {
+            border: 1px solid #E5E5E5;
+            border-radius: 999px;
+            background: white;
+            color: #14B8A6;
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+        }
+
+        .theme-toggle-btn:hover {
+            background-color: #ECFDF5;
+        }
+
+        body.dark {
+            background-color: #1A1A2E;
+            color: #E5E5E;
+        }
+
+        .dark .header,
+        .dark .progress-section,
+        .dark .continue-section,
+        .dark .stat-card,
+        .dark .tabs,
+        .dark .flashcard-front,
+        .dark .flashcard-back,
+        .dark .input-area,
+        .dark .starters-section,
+        .dark .bottom-nav {
+            background-color: #2D2D44 !important;
+            border-color: #3B3F5B !important;
+            color: #E5E5E5;
+        }
+
+        .dark .header {
+            box-shadow: none;
+        }
+
+        .dark .online-indicator,
+        .dark .starters-title,
+        .dark .starter-btn,
+        .dark .message-bubble,
+        .dark .input-field,
+        .dark .tab-btn,
+        .dark .progress-label,
+        .dark .topic-stats,
+        .dark .section-title {
+            color: #E5E5E5;
+        }
+
+        .dark .starter-btn {
+            background-color: #2D2D44;
+            border-color: #14B8A6;
+            color: #14B8A6;
+        }
+
+        .dark .starter-btn:hover {
+            background-color: #14B8A6;
+            color: white;
+        }
+
+        .dark .message.tutor .message-bubble {
+            background-color: #2D2D44;
+            color: #E5E5E5;
+            border-color: #3B3F5B;
+        }
+
+        .dark .input-field {
+            background-color: #1A1A2E;
+            border-color: #3B3F5B;
+            color: #E5E5E5;
+        }
+
+        .dark .input-field::placeholder {
+            color: #9CA3AF;
+        }
+
+        .dark .typing-indicator {
+            background-color: #2D2D44;
+            border-color: #3B3F5B;
+        }
+
+        .dark .bottom-nav {
+            border-top-color: #3B3F5B;
+        }
+
+        .dark .new-conversation-btn {
+            background-color: #14B8A6;
+            color: white;
+        }
+
+        .dark .theme-toggle-btn {
+            background-color: #2D2D44;
+            color: #E5E5E5;
+            border-color: #3B3F5B;
+        }
+
+        .dark .message.student .message-bubble {
+            background-color: #14B8A6;
+            color: white;
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background-color: #F5F5F4;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            background-color: white;
+            border-bottom: 1px solid #E5E5E5;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .tutor-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tutor-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1F2937;
+        }
+
+        .online-indicator {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 13px;
+            color: #6B7280;
+        }
+
+        .online-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #10B981;
+            border-radius: 50%;
+        }
+
+        .new-conversation-btn {
+            padding: 8px 16px;
+            background-color: #14B8A6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .new-conversation-btn:hover {
+            background-color: #0D9488;
+        }
+
+        /* Starters Section */
+        .starters-section {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding: 20px;
+            align-items: center;
+        }
+
+        .starters-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: #6B7280;
+            text-align: center;
+        }
+
+        .starters-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .starter-btn {
+            padding: 16px;
+            background-color: white;
+            border: 2px solid #14B8A6;
+            border-radius: 8px;
+            color: #14B8A6;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .starter-btn:hover {
+            background-color: #14B8A6;
+            color: white;
+        }
+
+        /* Messages Container */
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* Message Styles */
+        .message {
+            display: flex;
+            margin-bottom: 8px;
+        }
+
+        .message.student {
+            justify-content: flex-end;
+        }
+
+        .message.tutor {
+            justify-content: flex-start;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            font-size: 15px;
+            line-height: 1.4;
+        }
+
+        .message.student .message-bubble {
+            background-color: #14B8A6;
+            color: white;
+            border-radius: 18px 4px 18px 18px;
+        }
+
+        .message.tutor .message-bubble {
+            background-color: white;
+            color: #1F2937;
+            border: 1px solid #D1D5DB;
+            border-radius: 4px 18px 18px 18px;
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 12px 16px;
+            background-color: white;
+            border: 1px solid #D1D5DB;
+            border-radius: 18px;
+            width: fit-content;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #9CA3AF;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes bounce {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 0.7;
+            }
+        }
+
+        /* Input Area */
+        .input-area {
+            display: flex;
+            gap: 12px;
+            padding: 16px 20px;
+            background-color: white;
+            border-top: 1px solid #E5E5E5;
+        }
+
+        .input-field {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #D1D5DB;
+            border-radius: 24px;
+            font-size: 15px;
+            font-family: inherit;
+            resize: none;
+            max-height: 100px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .input-field:focus {
+            border-color: #14B8A6;
+        }
+
+        .send-btn {
+            padding: 12px 16px;
+            background-color: #14B8A6;
+            color: white;
+            border: none;
+            border-radius: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+            flex-shrink: 0;
+        }
+
+        .send-btn:hover {
+            background-color: #0D9488;
+        }
+
+        .send-btn:disabled {
+            background-color: #CCC;
+            cursor: not-allowed;
+        }
+
+        /* Arrow Icon */
+        .arrow-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .arrow-icon::before {
+            content: '→';
+            font-size: 18px;
+        }
+
+        /* Scrollbar Styling */
+        .messages-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .messages-container::-webkit-scrollbar-track {
+            background-color: transparent;
+        }
+
+        .messages-container::-webkit-scrollbar-thumb {
+            background-color: #D1D5DB;
+            border-radius: 4px;
+        }
+
+        .messages-container::-webkit-scrollbar-thumb:hover {
+            background-color: #9CA3AF;
+        }
+
+        /* Empty State */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            flex: 1;
+        }
+
+        .empty-state-text {
+            font-size: 16px;
+            color: #6B7280;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <div class="tutor-info">
+                    <div class="tutor-name">Sensei</div>
+                    <div class="online-indicator">
+                        <div class="online-dot"></div>
+                        <span>Online</span>
+                    </div>
+                </div>
+            </div>
+            <div style="display:flex; gap:12px; align-items:center;">
+                <button class="theme-toggle-btn" id="themeToggleBtn" type="button" title="Toggle dark mode">🌙</button>
+                <button class="new-conversation-btn" id="newConversationBtn">New Conversation</button>
+            </div>
+        </div>
+
+        <!-- Starters Section -->
+        <div class="starters-section" id="startersSection">
+            <p class="starters-title">How can I help you learn today?</p>
+            <div class="starters-grid" id="startersGrid"></div>
+        </div>
+
+        <!-- Messages Container -->
+        <div class="messages-container" id="messagesContainer"></div>
+
+        <!-- Input Area -->
+        <div class="input-area">
+            <input 
+                type="text" 
+                class="input-field" 
+                id="messageInput" 
+                placeholder="Type your message..."
+                autocomplete="off"
+            >
+            <button class="send-btn" id="sendBtn">
+                <div class="arrow-icon"></div>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const API_ENDPOINT = '/api/chat';
+
+        let conversationHistory = [];
+        let isWaitingForResponse = false;
+        let lastSentMessage = '';
+        let responseTimeout10 = null;
+        let responseTimeout20 = null;
+        let abortController = null;
+
+        const messagesContainer = document.getElementById('messagesContainer');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const startersSection = document.getElementById('startersSection');
+        const newConversationBtn = document.getElementById('newConversationBtn');
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+
+        // Event Listeners
+        sendBtn.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        newConversationBtn.addEventListener('click', resetConversation);
+        themeToggleBtn.addEventListener('click', toggleTheme);
+        initTheme();
+        renderStarters();
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('Service worker registered.', reg))
+                    .catch(err => console.warn('Service worker failed:', err));
+            });
+        }
+
+        function renderStarters() {
+            const startersGrid = document.getElementById('startersGrid');
+            startersGrid.innerHTML = '';
+            const lastTopic = localStorage.getItem('lastStudiedTopic');
+            const starters = getDynamicStarters(lastTopic);
+
+            starters.forEach(starter => {
+                const btn = document.createElement('button');
+                btn.className = 'starter-btn';
+                btn.type = 'button';
+                btn.dataset.starter = starter;
+                btn.textContent = starter;
+                btn.addEventListener('click', () => {
+                    messageInput.value = starter;
+                    sendMessage();
+                });
+                startersGrid.appendChild(btn);
+            });
+        }
+
+        function getDynamicStarters(topic) {
+            const fallback = [
+                'Tell me about your day',
+                'Help me introduce myself',
+                'I need travel phrases',
+                'Let’s practice ordering food'
+            ];
+
+            const dynamicStarters = {
+                food: [
+                    'Let’s practice ordering at a restaurant.',
+                    'Describe your favorite meal in English.',
+                    'Ask me how to order food politely.',
+                    'Say what you want to eat today.'
+                ],
+                travel: [
+                    'Plan a trip with me in English.',
+                    'Tell me about your next travel plan.',
+                    'Ask for directions in English.',
+                    'Describe your dream destination.'
+                ],
+                business: [
+                    'Talk about a business meeting in English.',
+                    'Practice introducing yourself at work.',
+                    'Write an email to a client in English.',
+                    'Describe your office routine.'
+                ],
+                greetings: [
+                    'Practice greeting someone politely.',
+                    'Say hello and introduce yourself.',
+                    'Ask someone how they are feeling.',
+                    'Teach me a polite greeting in English.'
+                ]
+            };
+
+            return dynamicStarters[topic] || fallback;
+        }
+
+        function resetConversation() {
+            // Track this as a new conversation session
+            const currentCount = parseInt(localStorage.getItem('conversationCount') || '0');
+            localStorage.setItem('conversationCount', (currentCount + 1).toString());
+            
+            conversationHistory = [];
+            messagesContainer.innerHTML = '';
+            startersSection.style.display = 'flex';
+            renderStarters();
+            messageInput.value = '';
+            isWaitingForResponse = false;
+        }
+
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            
+            if (!message || isWaitingForResponse) return;
+
+            // Hide starters section on first message
+            startersSection.style.display = 'none';
+
+            // Add student message to UI
+            addMessageToUI('student', message);
+
+            // Add to conversation history
+            conversationHistory.push({
+                role: 'user',
+                content: message
+            });
+
+            // Clear input
+            messageInput.value = '';
+            messageInput.focus();
+
+            // Save last message for retries
+            lastSentMessage = message;
+
+            // Show typing indicator
+            showTypingIndicator();
+            startResponseTimers();
+
+            // Call API
+            callAnthropicAPI(message);
+        }
+
+        function addMessageToUI(role, content) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+            
+            const bubbleDiv = document.createElement('div');
+            bubbleDiv.className = 'message-bubble';
+            bubbleDiv.textContent = content;
+            
+            messageDiv.appendChild(bubbleDiv);
+            messagesContainer.appendChild(messageDiv);
+            
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            isWaitingForResponse = true;
+            sendBtn.disabled = true;
+
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message tutor';
+            messageDiv.id = 'typingIndicator';
+            
+            const bubbleDiv = document.createElement('div');
+            bubbleDiv.className = 'typing-indicator';
+            
+            for (let i = 0; i < 3; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'typing-dot';
+                bubbleDiv.appendChild(dot);
+            }
+            
+            messageDiv.appendChild(bubbleDiv);
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const typingDiv = document.getElementById('typingIndicator');
+            if (typingDiv) {
+                typingDiv.remove();
+            }
+        }
+
+        function startResponseTimers() {
+            clearResponseTimers();
+
+            responseTimeout10 = setTimeout(() => {
+                showStatusMessage('Sensei is thinking extra hard! Please wait...', false);
+            }, 10000);
+
+            responseTimeout20 = setTimeout(() => {
+                if (abortController) {
+                    abortController.abort();
+                }
+                showStatusMessage('Something went wrong. Let\'s try again.', true);
+            }, 20000);
+        }
+
+        function clearResponseTimers() {
+            if (responseTimeout10) {
+                clearTimeout(responseTimeout10);
+                responseTimeout10 = null;
+            }
+            if (responseTimeout20) {
+                clearTimeout(responseTimeout20);
+                responseTimeout20 = null;
+            }
+        }
+
+        function showStatusMessage(messageText, showRetry) {
+            removeStatusMessage();
+            removeTypingIndicator();
+
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message tutor';
+            messageDiv.id = 'statusMessage';
+
+            const bubbleDiv = document.createElement('div');
+            bubbleDiv.className = 'message-bubble';
+            bubbleDiv.textContent = messageText;
+
+            if (showRetry) {
+                const retryBtn = document.createElement('button');
+                retryBtn.textContent = 'Retry';
+                retryBtn.style.marginTop = '12px';
+                retryBtn.style.padding = '10px 14px';
+                retryBtn.style.border = 'none';
+                retryBtn.style.borderRadius = '12px';
+                retryBtn.style.backgroundColor = '#14B8A6';
+                retryBtn.style.color = 'white';
+                retryBtn.style.cursor = 'pointer';
+                retryBtn.addEventListener('click', () => {
+                    removeStatusMessage();
+                    showTypingIndicator();
+                    startResponseTimers();
+                    if (lastSentMessage) {
+                        callAnthropicAPI(lastSentMessage);
+                    }
+                });
+                bubbleDiv.appendChild(retryBtn);
+            }
+
+            messageDiv.appendChild(bubbleDiv);
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            isWaitingForResponse = showRetry ? false : true;
+            sendBtn.disabled = showRetry;
+        }
+
+        function removeStatusMessage() {
+            const statusDiv = document.getElementById('statusMessage');
+            if (statusDiv) {
+                statusDiv.remove();
+            }
+        }
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            setTheme(savedTheme);
+        }
+
+        function setTheme(theme) {
+            document.body.classList.toggle('dark', theme === 'dark');
+            themeToggleBtn.textContent = theme === 'dark' ? '☀️' : '🌙';
+            localStorage.setItem('theme', theme);
+        }
+
+        function toggleTheme() {
+            const nextTheme = document.body.classList.contains('dark') ? 'light' : 'dark';
+            setTheme(nextTheme);
+        }
+
+        async function callAnthropicAPI(userMessage) {
+            try {
+                console.log('Sending request to:', API_ENDPOINT);
+
+                abortController = new AbortController();
+                const response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'content-type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: userMessage,
+                        conversationHistory
+                    }),
+                    signal: abortController.signal
+                });
+
+                clearResponseTimers();
+                removeStatusMessage();
+
+                console.log('Response status:', response.status);
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error('API Error:', errorData);
+                    removeTypingIndicator();
+                    addMessageToUI('tutor', `Error ${response.status}: ${errorData.error?.message || 'Unknown error'}`);
+                    isWaitingForResponse = false;
+                    sendBtn.disabled = false;
+                    return;
+                }
+
+                const data = await response.json();
+                console.log('API Response:', data);
+                const aiMessage = data.message || '';
+
+                // Add to conversation history
+                conversationHistory.push({
+                    role: 'assistant',
+                    content: aiMessage
+                });
+
+                // Remove typing indicator and add response
+                removeTypingIndicator();
+                addMessageToUI('tutor', aiMessage);
+
+                isWaitingForResponse = false;
+                sendBtn.disabled = false;
+                messageInput.focus();
+
+            } catch (error) {
+                clearResponseTimers();
+                if (error.name === 'AbortError') {
+                    console.warn('API request aborted after timeout');
+                    return;
+                }
+                console.error('Network/Fetch Error:', error);
+                console.error('Error message:', error.message);
+                removeTypingIndicator();
+                addMessageToUI('tutor', `Network error: ${error.message}`);
+                isWaitingForResponse = false;
+                sendBtn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
+

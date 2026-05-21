@@ -1,0 +1,22 @@
+{
+  "name": "Sensei English",
+  "short_name": "Sensei",
+  "start_url": "/vocab.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#14B8A6",
+  "theme_color": "#14B8A6",
+  "description": "Study English flashcards with Sensei English, even offline.",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}

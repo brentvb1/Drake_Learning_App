@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vocabulary Flashcards</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/icon.svg">
+    <meta name="theme-color" content="#14B8A6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #F5F5F4;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 0;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: white;
+            border-bottom: 1px solid #E5E5E5;
+            padding: 16px 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .theme-toggle-btn {
+            border: 1px solid #E5E5E5;
+            border-radius: 999px;
+            background: white;
+            color: #14B8A6;
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+        }
+
+        .theme-toggle-btn:hover {
+            background-color: #ECFDF5;
+        }
+
+        body.dark {
+            background-color: #1A1A2E;
+            color: #E5E5E5;
+        }
+
+        .dark .header,
+        .dark .progress-section,
+        .dark .tabs,
+        .dark .flashcard-front,
+        .dark .flashcard-back,
+        .dark .input-area,
+        .dark .bottom-nav {
+            background-color: #2D2D44 !important;
+            border-color: #3B3F5B !important;
+            color: #E5E5E5;
+        }
+
+        .dark .header {
+            box-shadow: none;
+        }
+
+        .dark .tab-btn,
+        .dark .flashcard-front-hint,
+        .dark .translation,
+        .dark .pronunciation,
+        .dark .example-sentence,
+        .dark .progress-label {
+            color: #E5E5E5;
+        }
+
+        .dark .flashcard-back {
+            border-color: #3B3F5B;
+        }
+
+        .dark .progress-bar-container {
+            background-color: #3B3F5B;
+        }
+
+        .dark .progress-bar {
+            background-color: #14B8A6;
+        }
+
+        .dark .theme-toggle-btn {
+            background-color: #2D2D44;
+            color: #E5E5E5;
+            border-color: #3B3F5B;
+        }
+
+        .dark .card-btn.know-btn {
+            background-color: #14B8A6;
+            color: white;
+        }
+
+        .dark .card-btn.still-learning-btn {
+            background-color: #3B3F5B;
+            color: #E5E5E5;
+        }
+
+        .dark .bottom-nav {
+            border-top-color: #3B3F5B;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: #1F2937;
+            margin-bottom: 8px;
+        }
+
+        /* Progress Bar */
+        .progress-section {
+            padding: 16px 20px;
+            background-color: white;
+            border-bottom: 1px solid #E5E5E5;
+        }
+
+        .progress-label {
+            font-size: 14px;
+            color: #6B7280;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background-color: #E5E5E5;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: #14B8A6;
+            transition: width 0.3s ease;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 0;
+            background-color: white;
+            border-bottom: 1px solid #E5E5E5;
+            overflow-x: auto;
+            padding: 0 20px;
+        }
+
+        .tab-btn {
+            padding: 16px 20px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: #6B7280;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: #14B8A6;
+        }
+
+        .tab-btn.active {
+            color: #14B8A6;
+            border-bottom-color: #14B8A6;
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        /* Flashcard Grid */
+        .flashcard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        /* Flashcard */
+        .flashcard-container {
+            perspective: 1000px;
+            height: 360px;
+        }
+
+        .flashcard {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-front,
+        .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .flashcard-front {
+            background-color: #14B8A6;
+            color: white;
+        }
+
+        .flashcard-front-text {
+            font-size: 42px;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .speaker-icon {
+            font-size: 22px;
+            margin-top: 14px;
+            cursor: pointer;
+            background: rgba(255,255,255,0.15);
+            border-radius: 50%;
+            width: 46px;
+            height: 46px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .speaker-icon:hover {
+            background: rgba(255,255,255,0.25);
+        }
+
+        .flashcard-front-hint {
+            font-size: 12px;
+            margin-top: 12px;
+            opacity: 0.8;
+            font-weight: 300;
+        }
+
+        .flashcard-back {
+            background-color: white;
+            color: #1F2937;
+            transform: rotateY(180deg);
+            border: 1px solid #D1D5DB;
+        }
+
+        .flashcard-back-content {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .translation {
+            font-size: 28px;
+            font-weight: 600;
+            color: #14B8A6;
+        }
+
+        .pronunciation {
+            font-size: 13px;
+            color: #6B7280;
+            font-style: italic;
+        }
+
+        .example-sentence {
+            font-size: 14px;
+            color: #4B5563;
+            line-height: 1.4;
+            margin-top: 8px;
+            padding: 8px;
+            background-color: #F9FAFB;
+            border-left: 3px solid #14B8A6;
+            text-align: left;
+        }
+
+        /* Card Buttons */
+        .card-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: auto;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .card-btn {
+            flex: 1;
+            padding: 10px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .know-btn {
+            background-color: #14B8A6;
+            color: white;
+        }
+
+        .know-btn:hover {
+            background-color: #0D9488;
+        }
+
+        .still-learning-btn {
+            background-color: #D1D5DB;
+            color: #1F2937;
+        }
+
+        .still-learning-btn:hover {
+            background-color: #9CA3AF;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6B7280;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+            border-top: 1px solid #E5E5E5;
+            padding: 8px 0;
+            gap: 0;
+            justify-content: center;
+        }
+
+        .nav-link {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 8px;
+            text-decoration: none;
+            color: #6B7280;
+            font-size: 12px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            transition: color 0.2s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #14B8A6;
+        }
+
+        .nav-icon {
+            font-size: 24px;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .flashcard-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .flashcard-container {
+                height: 400px;
+            }
+
+            .bottom-nav {
+                display: flex;
+            }
+
+            .content {
+                padding-bottom: 100px;
+            }
+
+            .tabs {
+                overflow-x: scroll;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .flashcard-front-text {
+                font-size: 32px;
+            }
+
+            .translation {
+                font-size: 24px;
+            }
+        }
+
+        /* Scrollbar */
+        .content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .content::-webkit-scrollbar-track {
+            background-color: transparent;
+        }
+
+        .content::-webkit-scrollbar-thumb {
+            background-color: #D1D5DB;
+            border-radius: 4px;
+        }
+
+        .content::-webkit-scrollbar-thumb:hover {
+            background-color: #9CA3AF;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Vocabulary Builder</h1>
+            <button class="theme-toggle-btn" id="themeToggleBtn" type="button" title="Toggle dark mode">🌙</button>
+        </div>
+
+        <!-- Progress Section -->
+        <div class="progress-section">
+            <div class="progress-label">
+                <span id="progressText">0 of 0 words known</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" data-topic="greetings">Greetings</button>
+            <button class="tab-btn" data-topic="food">Food</button>
+            <button class="tab-btn" data-topic="travel">Travel</button>
+            <button class="tab-btn" data-topic="business">Business</button>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <div class="flashcard-grid" id="flashcardGrid"></div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation (Mobile) -->
+    <div class="bottom-nav">
+        <a href="index.html" class="nav-link">
+            <div class="nav-icon">💬</div>
+            <div>Chat</div>
+        </a>
+        <button class="nav-link active" style="text-decoration: none;">
+            <div class="nav-icon">📚</div>
+            <div>Vocab</div>
+        </button>
+    </div>
+
+    <script>
+        const vocabularyData = {
+            greetings: [
+                {
+                    english: 'Hello',
+                    japanese: 'こんにちは',
+                    pronunciation: 'kon-ni-chi-wa',
+                    example: 'Hello, nice to meet you!'
+                },
+                {
+                    english: 'Thank you',
+                    japanese: 'ありがとう',
+                    pronunciation: 'a-ri-ga-to',
+                    example: 'Thank you for your help.'
+                },
+                {
+                    english: 'Goodbye',
+                    japanese: 'さようなら',
+                    pronunciation: 'sa-yo-na-ra',
+                    example: 'Goodbye, see you tomorrow!'
+                },
+                {
+                    english: 'Excuse me',
+                    japanese: 'すみません',
+                    pronunciation: 'su-mi-ma-sen',
+                    example: 'Excuse me, could you help me?'
+                },
+                {
+                    english: 'Please',
+                    japanese: 'お願いします',
+                    pronunciation: 'o-ne-gai-shi-mas',
+                    example: 'A coffee, please.'
+                },
+                {
+                    english: 'Good morning',
+                    japanese: 'おはようございます',
+                    pronunciation: 'o-ha-yo-go-za-i-mas',
+                    example: 'Good morning! Did you sleep well?'
+                }
+            ],
+            food: [
+                {
+                    english: 'Water',
+                    japanese: '水',
+                    pronunciation: 'mi-zu',
+                    example: 'I drink water every day.'
+                },
+                {
+                    english: 'Rice',
+                    japanese: 'ご飯',
+                    pronunciation: 'go-han',
+                    example: 'This rice is delicious.'
+                },
+                {
+                    english: 'Fish',
+                    japanese: '魚',
+                    pronunciation: 'sa-ka-na',
+                    example: 'Do you like fish or meat?'
+                },
+                {
+                    english: 'Bread',
+                    japanese: 'パン',
+                    pronunciation: 'pan',
+                    example: 'Fresh bread smells wonderful.'
+                },
+                {
+                    english: 'Tea',
+                    japanese: 'お茶',
+                    pronunciation: 'o-cha',
+                    example: 'Would you like some tea?'
+                },
+                {
+                    english: 'Delicious',
+                    japanese: 'おいしい',
+                    pronunciation: 'o-i-shi-i',
+                    example: 'This meal is very delicious!'
+                }
+            ],
+            travel: [
+                {
+                    english: 'Airport',
+                    japanese: '空港',
+                    pronunciation: 'ku-u-ko-u',
+                    example: 'The airport is one hour away.'
+                },
+                {
+                    english: 'Hotel',
+                    japanese: 'ホテル',
+                    pronunciation: 'ho-te-ru',
+                    example: 'We stayed at a nice hotel.'
+                },
+                {
+                    english: 'Train',
+                    japanese: '電車',
+                    pronunciation: 'den-sha',
+                    example: 'The train leaves at 10 AM.'
+                },
+                {
+                    english: 'Map',
+                    japanese: '地図',
+                    pronunciation: 'chi-zu',
+                    example: 'Do you have a map of the city?'
+                },
+                {
+                    english: 'Ticket',
+                    japanese: 'チケット',
+                    pronunciation: 'chi-ke-to',
+                    example: 'I need to buy a ticket.'
+                },
+                {
+                    english: 'Passport',
+                    japanese: 'パスポート',
+                    pronunciation: 'pa-su-po-to',
+                    example: 'Where is your passport?'
+                }
+            ],
+            business: [
+                {
+                    english: 'Meeting',
+                    japanese: '会議',
+                    pronunciation: 'kai-gi',
+                    example: 'The meeting starts at 2 PM.'
+                },
+                {
+                    english: 'Office',
+                    japanese: 'オフィス',
+                    pronunciation: 'o-fu-i-su',
+                    example: 'My office is downtown.'
+                },
+                {
+                    english: 'Email',
+                    japanese: 'メール',
+                    pronunciation: 'me-ru',
+                    example: 'Please send me an email.'
+                },
+                {
+                    english: 'Deadline',
+                    japanese: '締め切り',
+                    pronunciation: 'shi-me-ki-ri',
+                    example: 'The deadline is next Friday.'
+                },
+                {
+                    english: 'Contract',
+                    japanese: '契約',
+                    pronunciation: 'kei-ya-ku',
+                    example: 'Please sign the contract.'
+                },
+                {
+                    english: 'Business card',
+                    japanese: '名刺',
+                    pronunciation: 'mei-shi',
+                    example: 'Here is my business card.'
+                }
+            ]
+        };
+
+        let currentTopic = 'greetings';
+        let currentCardIndex = 0;
+
+        // Initialize
+        initializeApp();
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('Service worker registered.', reg))
+                    .catch(err => console.warn('Service worker failed:', err));
+            });
+        }
+
+        function initializeApp() {
+            initTheme();
+            loadProgress();
+            renderFlashcards();
+            setupTabListeners();
+        }
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            setTheme(savedTheme);
+            const themeToggleBtn = document.getElementById('themeToggleBtn');
+            themeToggleBtn.addEventListener('click', toggleTheme);
+        }
+
+        function setTheme(theme) {
+            document.body.classList.toggle('dark', theme === 'dark');
+            const themeToggleBtn = document.getElementById('themeToggleBtn');
+            themeToggleBtn.textContent = theme === 'dark' ? '☀️' : '🌙';
+            localStorage.setItem('theme', theme);
+        }
+
+        function toggleTheme() {
+            const nextTheme = document.body.classList.contains('dark') ? 'light' : 'dark';
+            setTheme(nextTheme);
+        }
+
+        function setupTabListeners() {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    currentTopic = e.target.dataset.topic;
+                    currentCardIndex = 0;
+                    renderFlashcards();
+                    updateProgress();
+                });
+            });
+        }
+
+        function renderFlashcards() {
+            const grid = document.getElementById('flashcardGrid');
+            grid.innerHTML = '';
+
+            const cards = vocabularyData[currentTopic]
+                .map((card, index) => ({ card, index, isKnown: isCardKnown(currentTopic, index) }))
+                .sort((a, b) => {
+                    if (a.isKnown === b.isKnown) return a.index - b.index;
+                    return a.isKnown ? 1 : -1;
+                });
+
+            cards.forEach(({ card, index, isKnown }) => {
+                const cardElement = createFlashcardElement(card, index, isKnown);
+                grid.appendChild(cardElement);
+            });
+
+            updateProgress();
+        }
+
+        function createFlashcardElement(card, index, isKnown) {
+            const container = document.createElement('div');
+            container.className = 'flashcard-container';
+
+            const flashcard = document.createElement('div');
+            flashcard.className = 'flashcard';
+
+            const front = document.createElement('div');
+            front.className = 'flashcard-front';
+            front.innerHTML = `
+                <div class="flashcard-front-text">${card.english}</div>
+                <div class="speaker-icon" title="Listen">🔊</div>
+                <div class="flashcard-front-hint">Click the speaker or flip the card</div>
+            `;
+
+            const back = document.createElement('div');
+            back.className = 'flashcard-back';
+            back.innerHTML = `
+                <div class="flashcard-back-content">
+                    <div class="translation">${card.japanese}</div>
+                    <div class="pronunciation">${card.pronunciation}</div>
+                    <div class="example-sentence">"${card.example}"</div>
+                    <div class="card-buttons">
+                        <button class="card-btn know-btn" data-index="${index}">Know It ✓</button>
+                        <button class="card-btn still-learning-btn" data-index="${index}">Still Learning</button>
+                    </div>
+                </div>
+            `;
+
+            // Flip functionality
+            front.addEventListener('click', (e) => {
+                if (e.target.closest('.speaker-icon')) {
+                    return;
+                }
+                flashcard.classList.toggle('flipped');
+            });
+            back.addEventListener('click', (e) => {
+                if (e.target.tagName !== 'BUTTON') {
+                    flashcard.classList.toggle('flipped');
+                }
+            });
+
+            // Button functionality
+            back.querySelectorAll('.card-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const isKnown = e.target.classList.contains('know-btn');
+                    markCardStatus(index, isKnown);
+                    updateCardAppearance(container, isKnown);
+                });
+            });
+
+            flashcard.appendChild(front);
+            flashcard.appendChild(back);
+            container.appendChild(flashcard);
+
+            const speakerButton = front.querySelector('.speaker-icon');
+            if (speakerButton) {
+                speakerButton.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    speakWord(card.english);
+                });
+            }
+
+            // Style if already marked
+            if (isKnown) {
+                updateCardAppearance(container, true);
+            }
+
+            return container;
+        }
+
+        function updateCardAppearance(container, isKnown) {
+            const frontText = container.querySelector('.flashcard-front-text');
+            const frontHint = container.querySelector('.flashcard-front-hint');
+            if (isKnown) {
+                frontText.textContent += ' ✓';
+                frontText.style.fontSize = '36px';
+                frontHint.style.opacity = '0.5';
+            }
+        }
+
+        function markCardStatus(cardIndex, isKnown) {
+            const progress = getProgress();
+            if (!progress[currentTopic]) {
+                progress[currentTopic] = {};
+            }
+            progress[currentTopic][cardIndex] = isKnown;
+            localStorage.setItem('vocabProgress', JSON.stringify(progress));
+            localStorage.setItem('lastStudiedTopic', currentTopic);
+            updateProgress();
+        }
+
+        function isCardKnown(topic, cardIndex) {
+            const progress = getProgress();
+            return progress[topic] && progress[topic][cardIndex] === true;
+        }
+
+        function getProgress() {
+            const stored = localStorage.getItem('vocabProgress');
+            return stored ? JSON.parse(stored) : {};
+        }
+
+        function updateProgress() {
+            const progress = getProgress();
+            const cards = vocabularyData[currentTopic];
+            const knownCount = cards.filter((_, i) => isCardKnown(currentTopic, i)).length;
+            const totalCount = cards.length;
+
+            document.getElementById('progressText').textContent = `${knownCount} of ${totalCount} words known`;
+            const percentage = (knownCount / totalCount) * 100;
+            document.getElementById('progressBar').style.width = percentage + '%';
+        }
+
+        function loadProgress() {
+            updateProgress();
+        }
+
+        function speakWord(word) {
+            if (!window.speechSynthesis) {
+                return;
+            }
+
+            const utterance = new SpeechSynthesisUtterance(word);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.85;
+
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(utterance);
+        }
+    </script>
+</body>
+</html>
