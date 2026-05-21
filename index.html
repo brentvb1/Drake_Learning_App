@@ -16,11 +16,15 @@
             box-sizing: border-box;
         }
 
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background-color: #F5F5F4;
             color: #1F2937;
-            height: 100vh;
             display: flex;
             flex-direction: column;
         }
@@ -162,7 +166,14 @@
         .chat-container {
             display: flex;
             flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
             height: 100vh;
+            height: 100dvh;
             background-color: #F5F5F4;
         }
 
@@ -529,6 +540,25 @@
         themeToggleBtn.addEventListener('click', toggleTheme);
         initTheme();
         renderStarters();
+
+        // Keep layout pinned to visual viewport when mobile keyboard opens
+        const chatContainer = document.querySelector('.chat-container');
+        function onViewportResize() {
+            const vh = window.visualViewport.height;
+            const vt = window.visualViewport.offsetTop;
+            chatContainer.style.height = vh + 'px';
+            chatContainer.style.top = vt + 'px';
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', onViewportResize);
+        }
+
+        messageInput.addEventListener('focus', () => {
+            setTimeout(() => {
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }, 300);
+        });
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
