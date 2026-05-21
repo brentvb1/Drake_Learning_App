@@ -22,15 +22,11 @@ module.exports = async (req, res) => {
       return;
     }
 
-    const messages = [
-      { role: 'system', content: SYSTEM_PROMPT },
-      ...conversationHistory
-    ];
-
     const requestBody = JSON.stringify({
       model: 'claude-opus-4-7',
       max_tokens: 200,
-      messages
+      system: SYSTEM_PROMPT,
+      messages: conversationHistory
     });
 
     const options = {
