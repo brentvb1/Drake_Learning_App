@@ -1,11 +1,14 @@
-const CACHE_NAME = 'sensei-english-cache-v5';
+const CACHE_NAME = 'sensei-english-cache-v6';
 const urlsToCache = [
   '/',
   '/index.html',
   '/vocab.html',
   '/dashboard.html',
   '/manifest.json',
-  '/icon.svg'
+  '/icon.svg',
+  '/icon-180.png',
+  '/icon-192.png',
+  '/icon-512.png'
 ];
 
 self.addEventListener('install', (event) => {
